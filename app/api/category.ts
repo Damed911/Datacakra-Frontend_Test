@@ -1,5 +1,5 @@
 import { BodyCategory } from '~/interfaces/category'
-import axios from '../lib/auth'
+import axios from '../lib/axios'
 
 export default {
   listCategory: async () => {

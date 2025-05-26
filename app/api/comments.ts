@@ -1,5 +1,5 @@
 import { BodyPostComment, ParamsGetComment } from '~/interfaces/comments'
-import axios from '../lib/auth'
+import axios from '../lib/axios'
 
 export default {
   listComment: async (params: ParamsGetComment) => {

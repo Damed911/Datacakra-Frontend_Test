@@ -1,5 +1,5 @@
 import { BodyPostArticle, ParamsGetArticle } from '~/interfaces/article'
-import axios from '~/lib/auth'
+import axios from '~/lib/axios'
 
 export default {
   articleList: async (params: ParamsGetArticle) => {
