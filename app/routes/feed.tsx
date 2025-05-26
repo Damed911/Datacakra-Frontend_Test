@@ -1,16 +1,21 @@
 import Navbar from '~/components/layouts/navbar'
 import { MetaFunction } from '@remix-run/node'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
-import { Separator } from '~/components/ui/separator'
-import { IconMessageCircle } from '@tabler/icons-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
+import { useRecoilState } from 'recoil'
+import { listArticleState } from '~/states/article'
+import { listCategoryState } from '~/states/category'
+import useArticleStore from '~/stores/article-store'
+import useCategoryStore from '~/stores/category-store'
+import useCommentStore from '~/stores/comment-store'
+import { ParamsGetArticle } from '~/interfaces/article'
+import CardArticle from '~/components/pages/feed/card/card-article'
+import CardArticleLoading from '~/components/pages/feed/card/card-article-loading'
+import PaginationFeed from '~/components/pages/feed/ui/pagination'
+import { Skeleton } from '~/components/ui/skeleton'
+import { article } from '~/schema/post.schema'
+import DialogCreateEdit from '~/components/pages/feed/dialog-create-edit'
 
 export const meta: MetaFunction = () => {
   return [
@@ -20,6 +25,154 @@ export const meta: MetaFunction = () => {
 }
 
 export default function Index() {
+  const [articleList] = useRecoilState(listArticleState)
+  const [categoryList] = useRecoilState(listCategoryState)
+
+  const [isReady, setIsReady] = useState(false)
+  const [isDialog, setIsDialog] = useState(false)
+  const [editDialog, setEditDialog] = useState(false)
+  const [editedDocumentId, setEditedDocumentId] = useState('')
+
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [filterCategory, setFilterCategory] = useState('')
+
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [cover, setCover] = useState('')
+  const [categories, setCategories] = useState('')
+
+  const initialArticleParams = {
+    'pagination[page]': 1,
+    'pagination[pageSize]': 10,
+    populate: '',
+    'populate[category]': '*',
+    'populate[comments][populate][user]': '*',
+    'populate[user]': '*',
+  }
+
+  const [articleParams, setArticleParams] =
+    useState<ParamsGetArticle>(initialArticleParams)
+
+  const {
+    GetArticleList: {
+      mutate: getArticleListMutate,
+      isPending: isPendingGetArticleList,
+    },
+    GetDetailArticle: { mutate: getDetailArticleMutate },
+    PostArticle: { mutate: postArticleMutate },
+    DeleteArticle: { mutate: deleteArticleMutate },
+    PutArticle: { mutate: putArticleMutate },
+  } = useArticleStore()
+  const {
+    GetCategoryList: { mutate: getCategoryListMutate },
+    GetDetailCategory,
+    PostCategory,
+    DeleteCategory,
+    PutCategory,
+  } = useCategoryStore()
+  const { GetDetailComment, PostComment, DeleteComment, PutComment } =
+    useCommentStore()
+
+  const submitSearch = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+
+    setPage(1)
+    if (search !== '') {
+      setArticleParams({
+        ...articleParams,
+        'filters[title][$eqi]': search,
+      })
+    } else {
+      setArticleParams(initialArticleParams)
+    }
+  }
+
+  const submitDelete = (documentIdArticle: string) => {
+    deleteArticleMutate(documentIdArticle, {
+      onSuccess: () => {
+        getArticleListMutate(articleParams)
+      },
+    })
+  }
+
+  const cancelEdit = () => {
+    setEditDialog(false)
+    setTitle('')
+    setContent('')
+    setCover('')
+  }
+
+  const triggerEdit = (documentId: string) => {
+    getDetailArticleMutate(documentId, {
+      onSuccess: async (res) => {
+        setEditedDocumentId(documentId)
+        setTitle(res.data.data.title)
+        setContent(res.data.data.description)
+        setCover(res.data.data.cover_image_url)
+        setEditDialog(true)
+      },
+    })
+  }
+
+  const handleCreateEdit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const params = {
+      data: {
+        title: title,
+        description: content,
+        cover_image_url: cover,
+      },
+    }
+
+    const result = article.safeParse(params.data)
+
+    if (result.success) {
+      putArticleMutate(
+        { id: editedDocumentId, params: params },
+        {
+          onSuccess: () => {
+            getArticleListMutate(articleParams)
+            cancelEdit()
+          },
+        }
+      )
+    }
+  }
+
+  const cancelPost = () => {
+    setIsDialog(false)
+    setTitle('')
+    setContent('')
+    setCover('')
+    setCategories('')
+  }
+
+  const handleCreatePost = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const params = {
+      data: {
+        title: title,
+        description: content,
+        cover_image_url: cover,
+        category: Number(categories),
+      },
+    }
+
+    const result = article.safeParse(params.data)
+
+    if (result.success) {
+      postArticleMutate(params, {
+        onSuccess: () => {
+          getArticleListMutate(articleParams)
+          cancelPost()
+        },
+      })
+    }
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken') as string
 
@@ -35,71 +188,119 @@ export default function Index() {
     }
   }, [])
 
+  useEffect(() => {
+    getCategoryListMutate()
+    getArticleListMutate(articleParams, {
+      onSettled: () => {
+        setIsReady(true)
+      },
+    })
+  }, [])
+
+  useEffect(() => {
+    if (isReady) {
+      getArticleListMutate(articleParams)
+    }
+  }, [articleParams])
+
+  useEffect(() => {
+    setArticleParams({ ...articleParams, 'pagination[page]': page })
+  }, [page])
+
   return (
     <>
-      <Navbar />
-      <div className="grid grid-cols-1 md:grid-cols-3 py-20 gap-4 max-w-[1080px] px-2 mx-auto h-screen">
+      <Navbar
+        search={search}
+        setSearch={setSearch}
+        submitSearch={submitSearch}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 py-20 gap-4 max-w-[1080px] px-2 mx-auto">
         <div className="col-span-1">
-          <div className="flex flex-col gap-3 border border-gray-300 p-4 bg-gray-300/75 rounded-lg">
-            <h1 className="font-semibold text-lg">Categories List</h1>
-            <li>
-              <p>Kategori 1</p>
-              <p>Kategori 2</p>
-              <p>Kategori 3</p>
-              <p>Kategori 4</p>
-            </li>
+          <div className="flex flex-col fixed sticky top-14 md:top-20 z-[40] md:z-[50] gap-3">
+            <Button onClick={() => setIsDialog(true)}>Create Article</Button>
+            {isDialog && (
+              <DialogCreateEdit
+                headerTitle="Create Article"
+                isDialog={isDialog}
+                cancelPost={cancelPost}
+                handleFunction={handleCreatePost}
+                title={title}
+                setTitle={setTitle}
+                content={content}
+                setContent={setContent}
+                cover={cover}
+                setCover={setCover}
+                categories={categories}
+                setCategories={setCategories}
+                categoryList={categoryList}
+              />
+            )}
+            <div className="flex flex-col border border-gray-300 p-4 bg-gray-300/75 rounded-lg">
+              <h1 className="font-semibold text-lg">Categories List</h1>
+              {categoryList.data?.map((item, index) => (
+                <li key={index}>
+                  <p>{item.name}</p>
+                </li>
+              ))}
+            </div>
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-4 w-full">
-              <input
-                type="text"
-                placeholder="Search Article"
-                className="w-full p-2 border border-gray-300/75 rounded-lg"
-              />
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Create Article</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>Create Article</DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </div>
-            <div className="flex flex-col border border-black rounded-lg">
-              <div className="flex items-center p-2">
-                <img
-                  src=""
-                  alt=""
-                  className="w-[500px] object-cover rounded-s-lg"
+            {isPendingGetArticleList ? (
+              <CardArticleLoading />
+            ) : (
+              articleList?.data?.length !== 0 &&
+              articleList?.data?.map((item, index) => (
+                <CardArticle
+                  key={index}
+                  idArticle={item?.documentId}
+                  title={item?.title}
+                  cover={item?.cover_image_url}
+                  content={item?.description}
+                  creator={item.user?.username}
+                  numComment={item.comments?.length}
+                  submitDelete={submitDelete}
+                  editTrigger={triggerEdit}
                 />
-                <div className="flex flex-col gap-2 justify-start">
-                  <p className="text-sm text-gray-300">Username</p>
-                  <p className="text-xl font-semibold">Judul</p>
-                  <p className="font-medium line-clamp-4">
-                    Lorem Ipsum is simply dummy text of the printing and
-                    typesetting industry. Lorem Ipsum has been the industry
-                    standard dummy text ever since the 1500s, when an unknown
-                    printer took a galley of type and scrambled it to make a
-                    type specimen book. It has survived not only five centuries,
-                    but also the leap into electronic typesetting, remaining
-                    essentially unchanged. It was popularised in the 1960s with
-                    the release of Letraset sheets containing Lorem Ipsum
-                    passages, and more recently with desktop publishing software
-                    like Aldus PageMaker including versions of Lorem Ipsum.
-                  </p>
-                </div>
+              ))
+            )}
+            {page === articleList?.meta?.pagination?.pageCount && (
+              <span className="text-sm text-gray-400 text-center">
+                End of content
+              </span>
+            )}
+            {!isPendingGetArticleList ? (
+              <PaginationFeed
+                page={page}
+                setPage={setPage}
+                totalPages={articleList?.meta?.pagination?.pageCount}
+              />
+            ) : (
+              <div className="flex items-center justify-end">
+                <Skeleton className="h-5 w-[200px]" />
               </div>
-              <Separator className="px-4" />
-              <div className="flex gap-2 p-2 items-center justify-end">
-                <IconMessageCircle />
-                <p>23</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
+      {editDialog && (
+        <DialogCreateEdit
+          headerTitle="Edit Article"
+          isDialog={editDialog}
+          cancelPost={cancelEdit}
+          handleFunction={handleCreateEdit}
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          cover={cover}
+          setCover={setCover}
+          categories={categories}
+          setCategories={setCategories}
+          categoryList={categoryList}
+        />
+      )}
     </>
   )
 }

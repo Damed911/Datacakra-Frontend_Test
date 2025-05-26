@@ -14,7 +14,7 @@ export default function useCategoryStore() {
       return api.listCategory()
     },
     onSuccess: async (res) => {
-      setListCategoryState(res.data.data)
+      setListCategoryState(res.data)
     },
     onError: () => {
       toast.error('Failed To Retrieve Data From Server', {
@@ -29,7 +29,7 @@ export default function useCategoryStore() {
       return api.detailCategory(id)
     },
     onSuccess: async (res) => {
-      setDetailCategoryState(res.data.data)
+      setDetailCategoryState(res.data)
     },
     onError: () => {
       toast.error('Failed To Retrieve Detail Article From Server', {

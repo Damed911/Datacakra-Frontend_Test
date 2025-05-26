@@ -1,20 +1,19 @@
 import { useRecoilState } from 'recoil'
 import { useMutation } from '@tanstack/react-query'
-import { listArticleState, detailArticleState } from '~/states/article'
+import { listArticleState } from '~/states/article'
 import api from '~/api/article'
 import { BodyPostArticle, ParamsGetArticle } from '~/interfaces/article'
 import { toast } from 'react-toastify'
 
 export default function useArticleStore() {
   const [, setListArticleState] = useRecoilState(listArticleState)
-  const [, setDetailArticleState] = useRecoilState(detailArticleState)
 
   const GetArticleList = useMutation({
     mutationFn: (params: ParamsGetArticle) => {
       return api.articleList(params)
     },
     onSuccess: async (res) => {
-      setListArticleState(res.data.data)
+      setListArticleState(res.data)
     },
     onError: () => {
       toast.error('Failed To Retrieve Data From Server', {
@@ -27,9 +26,6 @@ export default function useArticleStore() {
   const GetDetailArticle = useMutation({
     mutationFn: (id: string) => {
       return api.detailArticle(id)
-    },
-    onSuccess: async (res) => {
-      setDetailArticleState(res.data.data)
     },
     onError: () => {
       toast.error('Failed To Retrieve Detail Article From Server', {

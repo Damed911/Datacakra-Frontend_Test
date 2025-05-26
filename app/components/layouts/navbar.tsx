@@ -3,6 +3,7 @@ import {
   IconChevronDown,
   IconCirclesFilled,
   IconLogout2,
+  IconSearch,
 } from '@tabler/icons-react'
 import { Button } from '../ui/button'
 import {
@@ -21,8 +22,19 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog'
 import { getUsername } from '~/helper/credentials'
+import { Skeleton } from '../ui/skeleton'
+import React from 'react'
+import { Input } from '../ui/input'
 
-export default function Navbar() {
+export default function Navbar({
+  search,
+  setSearch,
+  submitSearch,
+}: {
+  search?: string
+  setSearch?: React.Dispatch<React.SetStateAction<string>>
+  submitSearch?: (e: React.MouseEvent<HTMLButtonElement>) => void
+}) {
   const location = useLocation().pathname
 
   const handleLogout = () => {
@@ -31,7 +43,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed w-full z-[50] top-0 left-0 px-4 py-3 bg-blue-900">
+    <header className="fixed w-full z-[40] md:z-[50] top-0 left-0 px-4 py-3 bg-blue-900">
       <div className="flex max-w-[1080px] px-3 mx-auto md:w-full items-center justify-between">
         <Link to={location === '/feed' ? '/feed' : '/'}>
           <div className="flex items-center gap-3">
@@ -47,10 +59,36 @@ export default function Navbar() {
           </a>
         )}
         {location === '/feed' && (
+          <div className="relative">
+            <form>
+              <Input
+                placeholder="Search Article"
+                className="rounded-full bg-blue-900 text-white placeholder-white pr-10"
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Button
+                variant="ghost"
+                type="submit"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-transparent"
+                onClick={submitSearch}
+              >
+                <IconSearch color="white" />
+              </Button>
+            </form>
+          </div>
+        )}
+        {location === '/feed' && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="flex items-center bg-transparent hover:bg-transparent border-none">
-                <p className="text-white">{getUsername() || ''}</p>
+              <Button className="flex items-center -pl-2 bg-transparent hover:bg-transparent border-none">
+                {!getUsername() ? (
+                  <Skeleton className="h-3 w-full" />
+                ) : (
+                  <p className="text-white">{getUsername() || ''}</p>
+                )}
                 <IconChevronDown color="white" />
               </Button>
             </DropdownMenuTrigger>

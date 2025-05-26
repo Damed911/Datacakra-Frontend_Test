@@ -2,21 +2,21 @@ import { ArticleComment } from '../comments'
 import { CategoryArticle } from '../category'
 
 export interface ParamsGetArticle {
-  page: number
-  size: number
-  comments: string
-  user: string
-  category: string
-  title?: string
-  categoryName?: string
+  'pagination[page]': number
+  'pagination[pageSize]': number
+  'populate[comments][populate][user]': string
+  'populate[user]': string
+  'populate[category]': string
+  'filters[title][$eqi]'?: string
+  'filters[category][name][$eqi]'?: string
   populate: string
 }
 
-export interface BodyPostArticle {
+export interface DetailPost {
   title: string
   description: string
   cover_image_url: string
-  category: number
+  category?: number
 }
 
 export interface ArticleCreator {
@@ -43,9 +43,9 @@ export interface DataArticle {
   updatedAt: string
   publishedAt: string
   locale: string
-  comments?: ArticleComment[]
-  user?: ArticleCreator
-  category?: CategoryArticle
+  comments: ArticleComment[]
+  user: ArticleCreator
+  category: CategoryArticle
 }
 
 export interface MetaArticle {
@@ -60,4 +60,8 @@ export interface MetaArticle {
 export interface ListArticle {
   data: DataArticle[]
   meta: MetaArticle
+}
+
+export interface BodyPostArticle {
+  data: DetailPost
 }

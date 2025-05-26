@@ -5,6 +5,7 @@ import {
   IconPlaneDeparture,
   IconSofa,
 } from '@tabler/icons-react'
+import { useEffect } from 'react'
 import Footer from '~/components/layouts/footer'
 import Navbar from '~/components/layouts/navbar'
 
@@ -16,6 +17,14 @@ export const meta: MetaFunction = () => {
 }
 
 export default function Index() {
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken') as string
+
+    if (token) {
+      window.location.href = '/feed'
+    }
+  })
+
   return (
     <div className="flex h-screen items-center p-16">
       <Navbar />
