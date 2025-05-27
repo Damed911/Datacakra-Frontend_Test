@@ -127,7 +127,7 @@ export default function CardArticle({
               onClick={() => setExpanded(!isExpanded)}
             >
               <p className="text-black text-xs font-normal hover:underline">
-                Show All
+                {isExpanded ? 'Show Less' : 'Show All'}
               </p>
             </button>
           </div>
