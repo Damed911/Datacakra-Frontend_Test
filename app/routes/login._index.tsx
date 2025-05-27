@@ -7,6 +7,7 @@ import Navbar from '~/components/layouts/navbar'
 import Footer from '~/components/layouts/footer'
 import { Login } from '~/schema/login.schema'
 import { Register } from '~/schema/register.schema'
+import { toast } from 'react-toastify'
 
 export const meta: MetaFunction = () => {
   return [
@@ -40,6 +41,10 @@ export default function Index() {
 
     if (data.success) {
       loginMutate(params)
+    } else {
+      data.error.issues.map((item) => {
+        toast.error(item.message, { autoClose: 2500, theme: 'colored' })
+      })
     }
   }
 
@@ -58,6 +63,10 @@ export default function Index() {
 
     if (data.success) {
       registerMutate(params)
+    } else {
+      data.error.issues.map((item) => {
+        toast.error(item.message, { autoClose: 2500, theme: 'colored' })
+      })
     }
   }
 

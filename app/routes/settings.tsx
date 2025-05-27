@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog'
+import { toast } from 'react-toastify'
 
 export const meta: MetaFunction = () => {
   return [
@@ -84,6 +85,10 @@ export default function Index() {
           cancel()
         },
       })
+    } else {
+      result.error.issues.map((item) => {
+        toast.error(item.message, { autoClose: 2500, theme: 'colored' })
+      })
     }
   }
 
@@ -120,6 +125,10 @@ export default function Index() {
           },
         }
       )
+    } else {
+      result.error.issues.map((item) => {
+        toast.error(item.message, { autoClose: 2500, theme: 'colored' })
+      })
     }
   }
 

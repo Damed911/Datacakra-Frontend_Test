@@ -8,9 +8,13 @@ export interface ParamsGetComment {
   sort: string
 }
 
-export interface BodyPostComment {
+export interface BodyComment {
   content: string
-  article: number
+  article?: number
+}
+
+export interface BodyPostComment {
+  data: BodyComment
 }
 
 export interface ArticleComment {

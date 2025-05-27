@@ -89,7 +89,11 @@ export default function DialogCreateEdit({
                 </label>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="w-full border border-gray-300 rounded-lg">
-                    {categories ? categories : 'Select Category'}
+                    {categories
+                      ? categoryList?.data?.flatMap((item) =>
+                          item.id === Number(categories) ? item.name : ''
+                        )
+                      : 'Select Category'}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuRadioGroup

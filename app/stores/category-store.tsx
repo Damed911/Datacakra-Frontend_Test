@@ -28,7 +28,7 @@ export default function useCategoryStore() {
       return api.detailCategory(id)
     },
     onError: () => {
-      toast.error('Failed To Retrieve Detail Article From Server', {
+      toast.error('Failed To Retrieve Detail Category From Server', {
         autoClose: 3000,
         theme: 'colored',
       })
@@ -40,13 +40,13 @@ export default function useCategoryStore() {
       return api.deleteCategory(id)
     },
     onSuccess: async () => {
-      toast.success('Article Succesfully Deleted', {
+      toast.success('Category Succesfully Deleted', {
         autoClose: 3000,
         theme: 'colored',
       })
     },
     onError: () =>
-      toast.error('Failed To Delete Article', {
+      toast.error('Failed To Delete Category', {
         autoClose: 3000,
         theme: 'colored',
       }),
@@ -57,13 +57,13 @@ export default function useCategoryStore() {
       return api.createCategory(params)
     },
     onSuccess: async () => {
-      toast.success('Article Successfully Created', {
+      toast.success('Category Successfully Created', {
         autoClose: 3000,
         theme: 'colored',
       })
     },
     onError: () => {
-      toast.error('Failed To Create Article', {
+      toast.error('Failed To Create Category', {
         autoClose: 3000,
         theme: 'colored',
       })
@@ -75,13 +75,13 @@ export default function useCategoryStore() {
       return api.editCategory(id, params)
     },
     onSuccess: async () => {
-      toast.success('Article Successfully Edited', {
+      toast.success('Category Successfully Edited', {
         autoClose: 3000,
         theme: 'colored',
       })
     },
     onError: () => {
-      toast.error('Failed To Edit Article', {
+      toast.error('Failed To Edit Category', {
         autoClose: 3000,
         theme: 'colored',
       })

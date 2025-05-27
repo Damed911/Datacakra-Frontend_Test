@@ -1,13 +1,12 @@
 import { useRecoilState } from 'recoil'
 import { useMutation } from '@tanstack/react-query'
-import { listCommentState, detailCommentState } from '~/states/comments'
+import { listCommentState } from '~/states/comments'
 import api from '~/api/comments'
 import { BodyPostComment, ParamsGetComment } from '~/interfaces/comments'
 import { toast } from 'react-toastify'
 
 export default function useCommentStore() {
   const [, setListCommentState] = useRecoilState(listCommentState)
-  const [, setDetailCommentState] = useRecoilState(detailCommentState)
 
   const GetCommentList = useMutation({
     mutationFn: (params: ParamsGetComment) => {
@@ -28,11 +27,8 @@ export default function useCommentStore() {
     mutationFn: (id: string) => {
       return api.detailComment(id)
     },
-    onSuccess: async (res) => {
-      setDetailCommentState(res.data.data)
-    },
     onError: () => {
-      toast.error('Failed To Retrieve Detail Article From Server', {
+      toast.error('Failed To Retrieve Detail Comment From Server', {
         autoClose: 3000,
         theme: 'colored',
       })
@@ -44,13 +40,13 @@ export default function useCommentStore() {
       return api.deleteComment(id)
     },
     onSuccess: async () => {
-      toast.success('Article Succesfully Deleted', {
+      toast.success('Comment Succesfully Deleted', {
         autoClose: 3000,
         theme: 'colored',
       })
     },
     onError: () =>
-      toast.error('Failed To Delete Article', {
+      toast.error('Failed To Delete Comment', {
         autoClose: 3000,
         theme: 'colored',
       }),
@@ -61,13 +57,13 @@ export default function useCommentStore() {
       return api.postComment(params)
     },
     onSuccess: async () => {
-      toast.success('Article Successfully Created', {
+      toast.success('Comment Successfully Created', {
         autoClose: 3000,
         theme: 'colored',
       })
     },
     onError: () => {
-      toast.error('Failed To Create Article', {
+      toast.error('Failed To Create Comment', {
         autoClose: 3000,
         theme: 'colored',
       })
@@ -79,13 +75,13 @@ export default function useCommentStore() {
       return api.putComment(id, params)
     },
     onSuccess: async () => {
-      toast.success('Article Successfully Edited', {
+      toast.success('Comment Successfully Edited', {
         autoClose: 3000,
         theme: 'colored',
       })
     },
     onError: () => {
-      toast.error('Failed To Edit Article', {
+      toast.error('Failed To Edit Comment', {
         autoClose: 3000,
         theme: 'colored',
       })
