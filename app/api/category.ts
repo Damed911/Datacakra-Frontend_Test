@@ -1,4 +1,4 @@
-import { BodyCategory } from '~/interfaces/category'
+import { BodyPostCategory } from '~/interfaces/category'
 import axios from '../lib/axios'
 
 export default {
@@ -11,10 +11,10 @@ export default {
   deleteCategory: async (idCategory: string) => {
     return axios.delete(`/api/categories/${idCategory}`)
   },
-  createCategory: async (params: BodyCategory) => {
+  createCategory: async (params: BodyPostCategory) => {
     return axios.post('/api/categories', params)
   },
-  editCategory: async (idCategory: string, params: BodyCategory) => {
+  editCategory: async (idCategory: string, params: BodyPostCategory) => {
     return axios.put(`/api/categories/${idCategory}`, params)
   },
 }

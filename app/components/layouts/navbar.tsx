@@ -4,11 +4,13 @@ import {
   IconCirclesFilled,
   IconLogout2,
   IconSearch,
+  IconSettings,
 } from '@tabler/icons-react'
 import { Button } from '../ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import {
@@ -19,11 +21,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '../ui/alert-dialog'
 import { getUsername } from '~/helper/credentials'
 import { Skeleton } from '../ui/skeleton'
-import React from 'react'
+import React, { useState } from 'react'
 import { Input } from '../ui/input'
 
 export default function Navbar({
@@ -35,6 +36,8 @@ export default function Navbar({
   setSearch?: React.Dispatch<React.SetStateAction<string>>
   submitSearch?: (e: React.MouseEvent<HTMLButtonElement>) => void
 }) {
+  const [openLogout, setOpenLogout] = useState(false)
+
   const location = useLocation().pathname
 
   const handleLogout = () => {
@@ -45,7 +48,9 @@ export default function Navbar({
   return (
     <header className="fixed w-full z-[40] md:z-[50] top-0 left-0 px-4 py-3 bg-blue-900">
       <div className="flex max-w-[1080px] px-3 mx-auto md:w-full items-center justify-between">
-        <Link to={location === '/feed' ? '/feed' : '/'}>
+        <Link
+          to={location === '/feed' || location === '/settings' ? '/feed' : '/'}
+        >
           <div className="flex items-center gap-3">
             <IconCirclesFilled color="white" />
             <h2 className="text-white font-semibold text-xl">Article.io</h2>
@@ -80,7 +85,7 @@ export default function Navbar({
             </form>
           </div>
         )}
-        {location === '/feed' && (
+        {(location === '/feed' || location === '/settings') && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="flex items-center -pl-2 bg-transparent hover:bg-transparent border-none">
@@ -93,36 +98,42 @@ export default function Navbar({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="px-2 py-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <div className="flex items-center gap-2 cursor-pointer text-sm">
-                    <IconLogout2 />
-                    <p>Logout</p>
-                  </div>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you sure you want to logout?
-                    </AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-blue-900 text-white">
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-500"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Link to="/settings">
+                <DropdownMenuItem>
+                  <IconSettings />
+                  <p>Settings</p>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem onClick={() => setOpenLogout(true)}>
+                <IconLogout2 color="red" />
+                <p>Logout</p>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
       </div>
+      {openLogout && (
+        <AlertDialog
+          open={openLogout}
+          onOpenChange={() => setOpenLogout(false)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Are you sure you want to logout?
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-blue-900 text-white">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction className="bg-red-500" onClick={handleLogout}>
+                Logout
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </header>
   )
 }

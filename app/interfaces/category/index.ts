@@ -2,6 +2,11 @@ import { MetaArticle } from '../article'
 
 export interface BodyCategory {
   name: string
+  description: string
+}
+
+export interface BodyPostCategory {
+  data: BodyCategory
 }
 
 export interface CategoryArticle {

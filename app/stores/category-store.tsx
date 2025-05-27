@@ -1,13 +1,12 @@
 import { useRecoilState } from 'recoil'
 import { useMutation } from '@tanstack/react-query'
-import { listCategoryState, detailCategoryState } from '~/states/category'
+import { listCategoryState } from '~/states/category'
 import api from '~/api/category'
-import { BodyCategory } from '~/interfaces/category'
+import { BodyPostCategory } from '~/interfaces/category'
 import { toast } from 'react-toastify'
 
 export default function useCategoryStore() {
   const [, setListCategoryState] = useRecoilState(listCategoryState)
-  const [, setDetailCategoryState] = useRecoilState(detailCategoryState)
 
   const GetCategoryList = useMutation({
     mutationFn: () => {
@@ -27,9 +26,6 @@ export default function useCategoryStore() {
   const GetDetailCategory = useMutation({
     mutationFn: (id: string) => {
       return api.detailCategory(id)
-    },
-    onSuccess: async (res) => {
-      setDetailCategoryState(res.data)
     },
     onError: () => {
       toast.error('Failed To Retrieve Detail Article From Server', {
@@ -57,7 +53,7 @@ export default function useCategoryStore() {
   })
 
   const PostCategory = useMutation({
-    mutationFn: (params: BodyCategory) => {
+    mutationFn: (params: BodyPostCategory) => {
       return api.createCategory(params)
     },
     onSuccess: async () => {
@@ -75,7 +71,7 @@ export default function useCategoryStore() {
   })
 
   const PutCategory = useMutation({
-    mutationFn: ({ id, params }: { id: string; params: BodyCategory }) => {
+    mutationFn: ({ id, params }: { id: string; params: BodyPostCategory }) => {
       return api.editCategory(id, params)
     },
     onSuccess: async () => {

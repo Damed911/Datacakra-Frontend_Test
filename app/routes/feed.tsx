@@ -16,6 +16,14 @@ import PaginationFeed from '~/components/pages/feed/ui/pagination'
 import { Skeleton } from '~/components/ui/skeleton'
 import { article } from '~/schema/post.schema'
 import DialogCreateEdit from '~/components/pages/feed/dialog-create-edit'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '~/components/ui/accordion'
+import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group'
+import { Label } from '~/components/ui/label'
 
 export const meta: MetaFunction = () => {
   return [
@@ -66,10 +74,6 @@ export default function Index() {
   } = useArticleStore()
   const {
     GetCategoryList: { mutate: getCategoryListMutate },
-    GetDetailCategory,
-    PostCategory,
-    DeleteCategory,
-    PutCategory,
   } = useCategoryStore()
   const { GetDetailComment, PostComment, DeleteComment, PutComment } =
     useCommentStore()
@@ -173,6 +177,18 @@ export default function Index() {
     }
   }
 
+  const handleFilteredCategory = () => {
+    setPage(1)
+    if (filterCategory !== '') {
+      setArticleParams({
+        ...articleParams,
+        'filters[category][name][$eqi]': filterCategory,
+      })
+    } else {
+      setArticleParams(initialArticleParams)
+    }
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken') as string
 
@@ -215,8 +231,8 @@ export default function Index() {
         submitSearch={submitSearch}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 py-20 gap-4 max-w-[1080px] px-2 mx-auto">
-        <div className="col-span-1">
-          <div className="flex flex-col fixed sticky top-14 md:top-20 z-[40] md:z-[50] gap-3">
+        <div className="col-span-1 relative">
+          <div className="flex flex-col fixed w-full md:sticky left-0 top-20 z-[40] md:z-[50] gap-3">
             <Button onClick={() => setIsDialog(true)}>Create Article</Button>
             {isDialog && (
               <DialogCreateEdit
@@ -235,14 +251,49 @@ export default function Index() {
                 categoryList={categoryList}
               />
             )}
-            <div className="flex flex-col border border-gray-300 p-4 bg-gray-300/75 rounded-lg">
-              <h1 className="font-semibold text-lg">Categories List</h1>
-              {categoryList.data?.map((item, index) => (
-                <li key={index}>
-                  <p>{item.name}</p>
-                </li>
-              ))}
-            </div>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="category" className="border-none">
+                <AccordionTrigger className="border border-gray-300 p-2 bg-[#F9FAFB] rounded-lg no-underline">
+                  Category
+                </AccordionTrigger>
+                <AccordionContent className="p-2 bg-gray-100 rounded-lg">
+                  <RadioGroup
+                    value={filterCategory}
+                    className="flex flex-col gap-2"
+                    onValueChange={(value) => setFilterCategory(value)}
+                  >
+                    {categoryList?.data?.map((item, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value={item.name}
+                          id={item.id.toString()}
+                        />
+                        <Label htmlFor={item.id.toString()}>{item.name}</Label>
+                      </div>
+                    ))}
+                    {filterCategory && (
+                      <div className="flex items-center justify-between gap-2">
+                        <Button
+                          onClick={() => {
+                            setFilterCategory('')
+                            handleFilteredCategory()
+                          }}
+                          className="bg-red-500 w-full"
+                        >
+                          Reset
+                        </Button>
+                        <Button
+                          onClick={handleFilteredCategory}
+                          className="w-full"
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    )}
+                  </RadioGroup>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
         <div className="col-span-1 md:col-span-2">

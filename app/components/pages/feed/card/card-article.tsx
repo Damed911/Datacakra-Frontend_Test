@@ -44,7 +44,7 @@ export default function CardArticle({
   const [deleteDialog, setDeleteDialog] = useState(false)
 
   return (
-    <div className="flex flex-col border border-black rounded-lg p-4">
+    <div className="flex flex-col border border-gray-300 bg-[#F9FAFB] rounded-lg p-4">
       <DropdownMenu>
         <DropdownMenuTrigger className="flex justify-end items-center pb-2">
           <IconDots />
